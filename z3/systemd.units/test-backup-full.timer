@@ -1,0 +1,10 @@
+[Unit]
+Description=Timer for BackUP.sh (every week)
+Documentation=
+
+[Timer]
+#Unit=test-backup-full.service
+OnCalendar=Sun *-*-* 00:00:00
+
+[Install]
+WantedBy=test-backup.target

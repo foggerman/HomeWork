@@ -1,0 +1,14 @@
+ISO/
+*.tmp
+tmp/
+*iso
+*asc.?
+.asc
+*gz
+*gz.?
+*DIGESTS
+*DIGESTS
+.git/
+vizor-test/
+.pab
+
