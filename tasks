@@ -1,0 +1,105 @@
+1. Написать bash скрипт который осуществляет поиск количества попыток взлома по протоколу ssh с каждого ip и блокировку последнего с помощью iptables, если количество попыток превысило 10. В данном случае используйте регулярные выражения для поиска ip, отсортируйте результат по количеству попыток взлома для вывода результата. Пример файла журнала:
+
+May 13 10:17:29 [sshd] Invalid user tplink from 5.188.10.176 port 43464
+May 13 10:17:30 [sshd] Connection closed by invalid user tplink 5.188.10.176 port 43464 [preauth]
+May 13 10:17:34 [sshd] Invalid user ubnt from 5.188.10.176 port 44124
+May 13 10:17:34 [sshd] Connection closed by invalid user ubnt 5.188.10.176 port 44124 [preauth]
+May 13 10:17:40 [sshd] Invalid user user from 5.188.10.176 port 47032
+May 13 10:17:40 [sshd] Connection closed by invalid user user 5.188.10.176 port 47032 [preauth]
+May 13 10:20:21 [sshd] pam_tally2(sshd:auth): Tally overflowed for user root
+May 13 10:20:22 [sshd] pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=61.177.172.188  user=root
+May 13 10:20:24 [sshd] error: PAM: Authentication failure for root from 61.177.172.188
+May 13 10:20:25 [sshd] pam_tally2(sshd:auth): Tally overflowed for user root
+May 13 10:20:25 [sshd] Postponed keyboard-interactive for root from 61.177.172.188 port 44714 ssh2 [preauth]
+May 13 10:20:25 [sshd] pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=61.177.172.188  user=root
+May 13 10:20:27 [sshd] error: PAM: Authentication failure for root from 61.177.172.188
+May 13 10:20:27 [sshd] Failed keyboard-interactive/pam for root from 61.177.172.188 port 44714 ssh2
+May 13 10:20:28 [sshd] pam_tally2(sshd:auth): Tally overflowed for user root
+May 13 10:20:28 [sshd] Postponed keyboard-interactive for root from 61.177.172.188 port 44714 ssh2 [preauth]
+May 13 10:20:28 [sshd] pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=61.177.172.188  user=root
+May 13 10:20:30 [sshd] error: PAM: Authentication failure for root from 61.177.172.188
+May 13 10:20:30 [sshd] Failed keyboard-interactive/pam for root from 61.177.172.188 port 44714 ssh2
+May 13 10:20:30 [sshd] error: maximum authentication attempts exceeded for root from 61.177.172.188 port 44714 ssh2 [preauth]
+May 13 10:20:30 [sshd] Disconnecting authenticating user root 61.177.172.188 port 44714: Too many authentication failures [preauth]
+May 13 14:17:10 [sshd] Connection closed by invalid user admin 5.188.10.176 port 50341 [preauth]
+May 13 14:17:17 [sshd] Did not receive identification string from 5.188.10.176 port 38547
+May 13 14:17:55 [sshd] pam_tally2(sshd:auth): Tally overflowed for user root
+May 13 14:21:29 [sshd] pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=58.218.198.165  user=root
+May 13 14:21:31 [sshd] error: PAM: Authentication failure for root from 58.218.198.165
+May 13 14:21:31 [sshd] pam_tally2(sshd:auth): Tally overflowed for user root
+May 13 14:21:31 [sshd] Postponed keyboard-interactive for root from 58.218.198.165 port 63705 ssh2 [preauth]
+May 13 14:21:31 [sshd] pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=58.218.198.165  user=root
+May 13 14:21:34 [sshd] error: PAM: Authentication failure for root from 58.218.198.165
+May 13 14:21:34 [sshd] Failed keyboard-interactive/pam for root from 58.218.198.165 port 63705 ssh2
+May 13 14:21:34 [sshd] Connection closed by authenticating user root 58.218.198.165 port 63705 [preauth]
+May 13 14:25:05 [sshd] pam_tally2(sshd:auth): Tally overflowed for user root
+May 13 14:25:05 [sshd] pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=58.218.198.165  user=root
+May 13 14:25:07 [sshd] error: PAM: Authentication failure for root from 58.218.198.165
+May 13 14:25:07 [sshd] Connection closed by authenticating user root 58.218.198.165 port 45058 [preauth]
+May 13 14:28:42 [sshd] pam_tally2(sshd:auth): Tally overflowed for user root
+May 13 14:28:42 [sshd] pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=58.218.198.165  user=root
+May 13 14:28:44 [sshd] error: PAM: Authentication failure for root from 58.218.198.165
+May 13 14:28:44 [sshd] pam_tally2(sshd:auth): Tally overflowed for user root
+May 13 14:28:44 [sshd] Postponed keyboard-interactive for root from 58.218.198.165 port 25219 ssh2 [preauth]
+May 13 14:28:45 [sshd] pam_unix(sshd:auth): authentication failure; logname= uid=0 euid=0 tty=ssh ruser= rhost=58.218.198.165  user=root
+May 13 14:28:46 [sshd] error: PAM: Authentication failure for root from 58.218.198.165
+May 13 14:28:46 [sshd] Failed keyboard-interactive/pam for root from 58.218.198.165 port 25219 ssh2
+May 13 14:28:46 [sshd] Connection closed by authenticating user root 58.218.198.165 port 25219 [preauth]
+May 13 14:36:03 [sshd] Connection closed by 58.218.198.165 port 47806 [preauth]
+May 13 14:57:05 [sshd] Invalid user camera from 5.188.10.176 port 45714
+May 13 14:57:06 [sshd] Connection closed by invalid user camera 5.188.10.176 port 45714 [preauth]
+May 13 14:57:20 [sshd] Connection closed by authenticating user cron 5.188.10.176 port 56035 [preauth]
+May 13 14:57:29 [sshd] Invalid user default from 5.188.10.176 port 42027
+May 13 14:57:30 [sshd] Connection closed by invalid user default 5.188.10.176 port 42027 [preauth]
+May 13 15:30:59 [sshd] Invalid user default from 5.188.10.176 port 51196
+May 13 15:31:00 [sshd] Connection closed by invalid user default 5.188.10.176 port 51196 [preauth]
+May 13 15:31:40 [sshd] Did not receive identification string from 5.188.10.176 port 44919
+May 13 15:37:50 [sshd] Invalid user admin from 212.91.77.226 port 28681
+May 13 15:37:50 [sshd] Connection closed by invalid user admin 212.91.77.226 port 28681 [preauth]
+
+2. Написать bash скрипт, который выведет top 15 процессов, потребляющие больше всего резидентной памяти в системе, используя стандартные утилиты linux. Значение памяти вывести в "human" виде (G, M, K), округлить до первого знака. При этом не использовать готовых утилит типа numfmt (сделать свою реализацию перевода в human вид, можно использовать awk).
+
+3. Напишите bash сценарий который будет выполнять резервное копирование каталога (например /opt/app, или на ваш выбор), по следующей схеме:
+каждых 7 дней выполнять полный бэкап нулевого уровня (level 0 backup), в последующие дни выполнять инкрементальное резервирование. При этом скрипт должен обеспечить возможность восстановить backup за любой день недели. Использовать можно только стандартные утилиты linux и rsync. При этом нужно резервировать хардлинки, сохранять все атрибуты, список контроля доступа, и права доступа к файлам, не транслировать имена владельца и группы в цифровые UID и GID, а также вести журнал хода выполнения с последующей очисткой старых записей за указанный выше период (7 дней). Результат об успешном или нет выполнении отправлять на email.
+
+4. Имеется две приватных сети: 172.20.0.0/24 (интерфейс eth0) и 192.168.0.0/24 (интерфейс eth1), а так же доступ в интернет через провайдера с динамическим ip, подключённым к wan0 интерфейсу (провайдер раздаёт настройки tcp/ip и dns по dhcp протоколу). Необходимо с помощью iptables и route на ОС linux (дистрибутив любой) дать доступ в интернет выделенной группе ip адресов из обеих подсетей: 172.20.0.100-172.20.0.200 и 192.168.0.30-192.168.0.44 по следующим протоколам - icmp, dns, http, https, ssh, ntp, всё остальное закрыть. При этом дать возможность обмениваться данными между двумя подсетями по smb протоколу. Хост имеющий ip - 172.20.0.100, может обмениваться данными с любым хостом из сети 192.168.0.0/24 по любому протоколу без ограничений. Результат сгенерировать с помощью команды iptables-save, route -n (или netstat -rn) и представить в ответе.
+
+5. Создать bash сценарий который будет скачивать свежий gentoo install-amd64-minimal.iso образ отсюда: http://distfiles.gentoo.org/releases/amd64/autobuilds/current-install-amd64-minimal/ и осуществлять его ремастеринг. А именно модификацию iso образа с внедрением публичного ssh ключа и добавление sshd сервиса в автозагрузку. Результат - это запуск виртуальной машины или ПК с этого образа должен получать по dhcp ip адрес и запускать ssh сервер к которому можно подключится по приватному ssh ключу без пароля.  Приватный и публичный ssh ключи представлены ниже:
+
+private_ssh_key:
+
+-----BEGIN RSA PRIVATE KEY-----
+MIIEowIBAAKCAQEA1tFWwjLQ+xz47WAKwfmaeYVB5kuq8UrbJAOR0P+SUgul7AbO
+EA9Qglgzp3uyudvfAK1uvVWKQ9tCK521Om4313jXuSOBInC3eg3mqeM3U5Ho6e5k
+mwOYCCx3WraK2Y1wXYBxG5pd1wuLMv+0ifL58W9mgy7xiz2zaXI2Xoqg2ntfbsIB
+aY8166FL/Y/avkBH+MZvbCJxsWygDo11d85yZIBkvQR3wLKXip0mSXdpZOFfSjp3
+C3V80KOfinUKxi1mn9PJlYrN8CjlazvZkp7xnt525qUN02+SFwtsOEH0tihEXIYr
+I3mRWKOMLEqPIsrs6blRgO7zgI9RJRCVL3EOuQIDAQABAoIBAEBzmJM1iev9ulYG
+HdQrHoTdTXNaOpSgv/UjOQm61FzXb9XMCOFapu4kpoLWoz4OUO80GeimlJBdZZIO
+hERes1RrxlWe6Gy74uC08QMB0CS7v2UIiJjV0DSLmtfVsv0o6ZC0K7t7ajJOHVqU
+y8cj5ofgw6ISYJhFT+IQSW2+LBrAopMbw320P1t+7hrpjdBytzClcQ+1EROAn3rm
+iOwGpTzMwn0bF3Nw3LImW6+z+W/2ktGi353WeEQO4qGErMSPhILnBLjsF6Py4M4Q
++iDtwDHZMgH45Sv+l+Pv4loaZ4XIBFeDCTNuU47R58hzSMG9eYpP4hDONzD5zrkN
+iTz+4B0CgYEA8GP3g4vvhClFzalmaxoLnc/BjJqoYWa3aO01BKbc/RM8fIsKmccd
+768/VePkfq/5LzfanX57w5xy//FNGNhEptEJJLdwYb19G0QpCN7ZCRxj6/gf1vLy
+Mm+7wQ49p40jFO6wLnrRF8N5RMlOm+Cqc1VuvBRmLba0tmW7bKVj/OMCgYEA5MRG
+DP6hntUWqkwYIwxklKkYceY3Cu722KROo7BIgJzKa2FVPisM3J/QrFG8nbX8yYqc
+w6E7haPoQLUyH1nStN20c2u3pnwynxx92FHecrqFoxfvr1i9YN7Xfvn90pfpiyTH
+fLLEbXxbcffpdcOj/jXei0KHtH8LawUqS3aclLMCgYEAleSvtK3wFseph/kGLOhb
+r/aY6HSTY9CpstqeQZ1OlNuGzt3gKU04hHkRFBx7IOfXiDLatXPl9m46Yw9ylHhe
+LmqPuf5MLBX8yaCxuZ9DU+QJBl18dQqeLQbw2wtnNG/UHTxMTV81vAyeNF8WDiqD
+/lCaMNrDb+PKQSWkPbXPaCMCgYB3vHtlxcjWF3YbgGSJw6zJWpAe3X4lzNmKnsVC
+S7xHBMm11mYFegbrWwKfjtCIQ36iBljy0+sRka64X55yZlMws3IFj3W6P/tG6GS9
+2mvx5MqZiKe9QVct4rUsErDVjwl/+KopDHBfVd2PE1EwgEvPfGaUwSfCQ1S4mSWA
+Bf8CnQKBgHZt6a6ImRlgkPgRwUfkITMT7VF7D1Nem0QO2aXabTolHcr5hcHxqu7p
+NxsaZZlgI9cDRberH+A8AnGfjA05K+xkUybLYhNhQ8pimsCxeWiJ11L1K32FYDfR
+i0UvU8eV+DDV11N/EBXYnSJFhELl+I+H2zykxBEKHCYyZCtyefVp
+-----END RSA PRIVATE KEY-----
+
+public_ssh_key:
+
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDW0VbCMtD7HPjtYArB+Zp5hUHmS6rxStskA5HQ/5JSC6XsBs4QD1CCWDOne7K5298ArW69VYpD20IrnbU6bjfXeNe5I4EicLd6Deap4zdTkejp7mSbA5gILHdatorZjXBdgHEbml3XC4sy/7SJ8vnxb2aDLvGLPbNpcjZeiqDae19uwgFpjzXroUv9j9q+QEf4xm9sInGxbKAOjXV3znJkgGS9BHfAspeKnSZJd2lk4V9KOncLdXzQo5+KdQrGLWaf08mVis3wKOVrO9mSnvGe3nbmpQ3Tb5IXC2w4QfS2KERchisjeZFYo4wsSo8iyuzpuVGA7vOAj1ElEJUvcQ65 for_test
+
+P.S. информация об актуальном iso образе содержится тут: http://distfiles.gentoo.org/releases/amd64/autobuilds/latest-install-amd64-minimal.txt
+
+

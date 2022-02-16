@@ -1,0 +1,16 @@
+[Unit]
+Description=BackUP.sh (full)
+Documentation=
+After=local-fs.target
+#Wants=remout-fs.target
+Requires=local-fs.target
+
+[Service]
+Type=oneshot
+#user=backup
+ExecStart=/home/mtbuser/vizor-test/backup.sh full
+#LimitCPU=
+#StandartOutput=syslog
+#StandartError=syslog
+SyslogIdentifier=backupscript
+
