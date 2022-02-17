@@ -29,7 +29,12 @@ export LANG="en_US.UTF-8"
     exit 0
     elif [[ "${CHAT_ID}" =~ ^-?[0-9]+$ && -n "${TEXT}" ]]; then
     echo "[${DATETIME}] CHAT_ID:\"${CHAT_ID}\" TEXT=\"${SUBJ}\n$(echo ${TEXT}| tr "\r" " ")\"" >> "${LOG_FILE}"
-    RESULT=$(curl -x http://192.168.11.220:3128/ -sS -i --max-time 30 \
+    #RESULT=$(curl -x "$https_proxy" -sS -i --max-time 30 \
+    #--header 'Content-Type: application/json' \
+    #--request 'POST' \
+    #--data '{"chat_id": "'"${CHAT_ID}"'", "text": "'"${SUBJ}\n${TEXT}"'","parse_mode": "HTML"}' \
+    #"https://api.telegram.org/bot${BOT_AUTH_TOKEN}/sendMessage" 2>&1)
+    RESULT=$(curl -x  -sS -i --max-time 30 \
     --header 'Content-Type: application/json' \
     --request 'POST' \
     --data '{"chat_id": "'"${CHAT_ID}"'", "text": "'"${SUBJ}\n${TEXT}"'","parse_mode": "HTML"}' \
