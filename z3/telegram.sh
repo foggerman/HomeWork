@@ -16,7 +16,8 @@ export LANG="en_US.UTF-8"
 ....
     if [[ "${CHAT_ID}" == "getid" ]]; then
     #RESULT=$(curl -x "$https_proxy" -sS -i --max-time 30 "https://api.telegram.org/bot${BOT_AUTH_TOKEN}/getUpdates" 2>&1)
-    RESULT=$(curl -x -sS -i --max-time 30 "https://api.telegram.org/bot${BOT_AUTH_TOKEN}/getUpdates" 2>&1)
+    RESULT=$(curl -- "https://api.telegram.org/bot${BOT_AUTH_TOKEN}/getUpdates" 2>&1)
+    #curl --silent "https://api.telegram.org/bot${TOKEN}/getUpdates" | jq
     RC=$?
     if [ ${RC} -ne 0 ]; then
     echo "${RESULT}"
@@ -34,7 +35,7 @@ export LANG="en_US.UTF-8"
     #--request 'POST' \
     #--data '{"chat_id": "'"${CHAT_ID}"'", "text": "'"${SUBJ}\n${TEXT}"'","parse_mode": "HTML"}' \
     #"https://api.telegram.org/bot${BOT_AUTH_TOKEN}/sendMessage" 2>&1)
-    RESULT=$(curl -x  -sS -i --max-time 30 \
+    RESULT=$(curl --sS -i --max-time 30 \
     --header 'Content-Type: application/json' \
     --request 'POST' \
     --data '{"chat_id": "'"${CHAT_ID}"'", "text": "'"${SUBJ}\n${TEXT}"'","parse_mode": "HTML"}' \
