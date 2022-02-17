@@ -16,7 +16,7 @@ export LANG="en_US.UTF-8"
 ....
     if [[ "${CHAT_ID}" == "getid" ]]; then
     #RESULT=$(curl -x "$https_proxy" -sS -i --max-time 30 "https://api.telegram.org/bot${BOT_AUTH_TOKEN}/getUpdates" 2>&1)
-    RESULT=$(curl -- "https://api.telegram.org/bot${BOT_AUTH_TOKEN}/getUpdates" 2>&1)
+    RESULT=$(curl --silent "https://api.telegram.org/bot${BOT_AUTH_TOKEN}/getUpdates" 2>&1)
     #curl --silent "https://api.telegram.org/bot${TOKEN}/getUpdates" | jq
     RC=$?
     if [ ${RC} -ne 0 ]; then
