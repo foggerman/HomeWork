@@ -4,6 +4,8 @@
 #private_ssh_key:
 #P.S. информация об актуальном iso образе содержится тут: http://distfiles.gentoo.org/releases/amd64/autobuilds/latest-install-amd64-minimal.txt
 
+#set -e #дебаг режим (-x)
+
 gARC=amd64
 gBILD=$(curl -s http://distfiles.gentoo.org/releases/$gARC/autobuilds/latest-install-$gARC-minimal.txt | grep -oE '^[^#\/]+')
 gISO="install-$gARC-minimal-$gBILD.iso"
@@ -17,18 +19,21 @@ gDIR="$(pwd)"/ISO
 update-key() {
 wget -O - https://qa-reports.gentoo.org/output/service-keys.gpg | gpg --import #impory new key
 #list=$(ls "$gDIR" | grep -Eo '\w+asc$')
+########fan##############
+#echo -en "\033[37;1;41m Внимание \033[0m"
 
 if ! [ -f "$gDIR/$gISO.asc" ] #if not exist
   then
     wget -P "$gDIR" "$gURL.asc"  #download sign
-elif ! [ -f "$gDIR/$gISO.DIGESTS" ] #if not exist
+fi
+
+if ! [ -f "$gDIR/$gISO.DIGESTS" ] #if not exist
   then
     wget -P "$gDIR" "$gURL.DIGESTS" #download SHA512
-else
-  echo "Latest version already exist in $gDIR"
 fi
 
 # verefi all gpg key
+clear
 for file in "$gDIR"/*asc
   do
     if ! gpg --verify "$file"
@@ -68,25 +73,36 @@ fSHA=$(grep -E '^\w+.+iso$' "$gDIR"/"$gISO".DIGESTS | cut -d ' ' -f 1) #get SHA5
 
 if [ "$gSHA" = "$fSHA" ]
   then
-    echo "SHA256 verification successful!"
+    clear
+    echo '''******************************************************
+            *********"SHA256 verification successful!"************
+            ******************************************************'''
+
   else
-    echo "ERROR! SHA256 verification failed!"
+    clear
+    echo '''******************************************************
+            *****!ERROR! SHA256 verification failed !ERROR!*******
+            ******************************************************'''
 fi
 }
 
-#remaster() {}
+remaster() { #go to internal sh for mount and modifi
+    sudo bash remaster.sh "$gDIR/$gISO"
+}
 
 
 
 #todo*************************remastering!!
+clear
 echo "SH script for download latest Gentoo Linux and optionally add company ssh keys to .iso"
-select number in "Check, download and verifi new .iso" "Verifi existing .iso" "Remastering" "4-Exit"
+select number in "Check, download and verifi new .iso" "Verifi existing .iso" "Remastering" "Exit"
 do  
   case $number in
-    1) resdownload;;
-    2) update-key && sha-verifi;;
-    3) remaster;;
-    4) break;;
+    "Check, download and verifi new .iso") resdownload;;
+    "Verifi existing .iso") update-key && sha-verifi;;
+    "Remastering") remaster;;
+    "Exit") break;;
     *) echo something wrong;;
   esac
 done
+#tput sgr0    # Reset text format to the terminal's default

@@ -6,6 +6,14 @@
 logPATH=sshd-test.log
 #iptSET=/etc/network/iptables.rules
 bIP=$(grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" "$logPATH" | sort | uniq -c) #фильтруем все ip, нужно предусмотреть защиту белых, кто просто часто логинится или забывает пароль) 
+
+if [[ $EUID -ne 0 ]]; then
+	echo "This script must be run as root"
+    echo "but, at least you can see the bad guys"
+    echo "$bIP"
+	exit 1
+fi
+
 IFS=$'\n' #change default delimiter
 
 sudo iptables-restore < iptables.rules #restore iptables settings

@@ -11,4 +11,14 @@ tmp/
 .git/
 vizor-test/
 .pab
+pab
+EmptyFile
+mount/
+sorc/
+modISO/
+sqfs-old/
+sqfs-mod/
+oinitrd/
+ninitrd/
+ssh
 
