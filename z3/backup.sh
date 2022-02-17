@@ -37,27 +37,27 @@ ERRMAIL
 
 backup() {
          if ! [ -d "$bDEST" ] #if dir not exist 
-         then
-         mkdir -p "$bDEST"/"$bDATE" 
+           then
+            mkdir -p "$bDEST"/"$bDATE" 
          fi
          
-         if [ -d "$bSORC" ] #not to back up emptiness
-         then
+         if [ -d "$bSORC" ] #not to back up empti
+           then
             if ! tar -g "$bDEST"/snar -czvf "$bDEST"/"$bDATE"/"$bNAME".tar.gz -C "$bSORC" . #>> "$bDEST"/"$bNAME".log
             then
-            echo "ERROR! $bNAME" #to do: send alert if failure
+                echo "ERROR! $bNAME" #to do: send alert if failure
             return 1
             else
-            echo "Completed! $bNAME" #to do: send alert
+                echo "Completed! $bNAME" #to do: send alert
             return 0
             fi 
          
          else
-         echo "Warning. Nothing to do, wrong path $bSORC"
+            echo "Warning. Nothing to do, wrong path $bSORC"
          return 1
          fi
-# do not shure abaut "return"
-}
+
+}#do not sure about "return"
 
 delete() {
          find "$bOLD"/ -mtime +"$bTIME" -type f -delete #delete archives older than 13 days  
@@ -72,15 +72,22 @@ full() {
     then 
     rm -fr "$bDEST" #flush last week
         if backup #start new
-        then 
-        delete #remove old backup level 0 if OK
-        return 0
+          then 
+            delete #remove old backup level 0 if OK
+          return 0
         else
         return 1
         fi
     return 1
     fi
 }
+
+restore() { 
+            tar xzf "$bDEST"/"$bDATE"/"$bNAME".tar.gz --listed-incremental="$bDEST"/snar 
+            ls "$bDEST/$bDATE" | sort | xargs tar xzf --listed-incremental="$bDEST"/snar 
+
+}
+
 
 #work***********************to do recovery or translate to rsync(
 case $1 in #check $1
