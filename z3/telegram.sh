@@ -3,7 +3,7 @@ export LC_ALL="C"
 export LANG="en_US.UTF-8"
 #------------------------------------------------------------------------------
 .
- BOT_AUTH_TOKEN="740062108:AAGt5zEcNhtGzTDuP_SdAVM8kGRWV1ryo10"
+ BOT_AUTH_TOKEN="$4"
  #https_proxy=
  LOG_FILE="/home/logs/telegram.log"
 ..
