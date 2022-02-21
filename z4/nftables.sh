@@ -7,7 +7,7 @@
 #всё остальное закрыть. При этом дать #возможность обмениваться данными между двумя подсетями по smb протоколу. Хост имеющий ip - 172.20.0.100, 
 #может обмениваться данными с любым хостом из сети 192.168.0.0/24 по любому #протоколу без ограничений. Результат сгенерировать с помощью команды 
 #iptables-save, route -n (или netstat -rn) и представить в ответе.
-#iptables -L -nv
+#
 #sudo iptables-save
 #ls /sys/class/net
 #enp0s10  enp0s3  enp0s8  enp0s9  lo
@@ -32,7 +32,7 @@ wan0=enp0s10
 eth0=enp0s8
 eth1=enp0s9
 
-#Lacki
+#Lacky
 inet192="192.168.0.31-192.168.0.44"
 inet172="172.20.0.101-172.20.0.200"
 
@@ -40,68 +40,125 @@ if [ "$EUID" -ne 0 ]
   then echo "Please run as root"
   exit
 fi
-#echo -e '''
-# ---
-# network:
-#   version: 2
-#   renderer: networkd
-#   ethernets:
-#     enp0s8:
-#       addresses:
-#       - 172.20.0.1/24
-#     enp0s9:
-#       addresses:
-#       - 192.168.0.1/24
-#     enp0s10:
-#       dhcp4: true'''
+
+#Check the network
+checkNET () {
+    interf=$(ls /sys/class/net)
+    Echo "existed interface: $interf"
+}
+checkNET
+
+#Add static
+netplan () {
+    #echo $(cat /etc/netplan/50-*)
+echo -e '''
+ ---
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp0s8:
+      addresses:
+      - 172.20.0.1/24
+    enp0s9:
+      addresses:
+      - 192.168.0.1/24
+    enp0s10:
+      dhcp4: true''' >> 50-vagrant.yaml
+
+if ! netplan --debag generate
+   then
+    retern 1
+   else
+    netplan --debug apply
+fi
+}
 
 #**********ROUTE************************'
-#route add -net 192.168.0.0 netmask 255.255.255.0 dev $eth1 metric 10
-#route add -net 172.20.0.0 netmask 255.255.255.0 dev $eth0 metric 10
-#route add -net 0.0.0.0 netmask 0.0.0.0 gw 192.168.199.1 dev $wan0 metric 100
-#route add -host 172.20.0.2 dev $eth0
-#route add -host 192.168.0.2 dev $eth1
+    route -n
+    routrule () {
+    route add -net 192.168.0.0 netmask 255.255.255.0 dev $eth1 metric 10
+    route add -net 172.20.0.0 netmask 255.255.255.0 dev $eth0 metric 10
+    route add -net 0.0.0.0 netmask 0.0.0.0 gw 192.168.199.1 dev $wan0 metric 100
+    route add -host 172.20.0.2 dev $eth0
+    route add -host 192.168.0.2 dev $eth1
+    }
+    read  -r -p "Add new route? " answer
+    case $answer in
+        y) routrule;;
+        n) echo "fuh";;
+    esac
+    
 
+  
 #************ADD PORT FORWARD***************
-#echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf #sudo tee -a /etc/sysctl.conf
-#sysctl -p /etc/sysctl.conf #reset
+addFOR () {
+    echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf #sudo tee -a /etc/sysctl.conf
+    sysctl -p /etc/sysctl.conf #reset
+}
+cat /etc/sysctl.conf
+read  -r -p "Add intrface PORT FORWARD? " answer
+    case $answer in
+        y) addFOR;;
+        n) echo "fuh";;
+    esac
 
-# Очищаем правила'
-iptables -F
-iptables -F -t nat
-#iptables -F -t mangle
-iptables -X
-iptables -t nat -X
-#iptables -t mangle -X
+#Flush
+flush () {
+    iptables -F
+    iptables -F -t nat
+    #iptables -F -t mangle
+    iptables -X
+    iptables -t nat -X
+    #iptables -t mangle -X
+}
 
 
 #LO
-iptables -A INPUT -i lo -j ACCEPT
-iptables -A OUTPUT -o lo -j ACCEPT
+read  -r -p "ADD LO exception?" answer
+    case $answer in
+        n) addLO=false;;
+        y) addLO=true;;
+    esac
 
-#
-iptables -A INPUT -i enp0s3 -j ACCEPT
-iptables -A OUTPUT -o enp0s3 -j ACCEPT
+
+read  -r -p "Show old tables?" answer
+    case $answer in
+        y) iptables -L -nv && iptables -L -t nat -nv;;
+        n) echo "fuh";;
+    esac
+
+read  -r -p "SAVE & Flush old tables?" answer
+    case $answer in
+        n) flush;;
+        y) iptables-save > old_tables && flush;;
+    esac
+
+service lan srvLAN=enp0s3
+iptables -A INPUT -i $srvLAN -j ACCEPT
+iptables -A OUTPUT -o $srvLAN -j ACCEPT
+
+if $addLO 
+then
+iptables -A INPUT -i lo -j ACCEPT 
+iptables -A INPUT -i lo -j ACCEPT
+fi
 
 #*************DEFAULTS******************'
 iptables -P INPUT DROP #drop all defaults
 iptables -P OUTPUT DROP #drop all defaults
 iptables -P FORWARD DROP #drop all defaults
 
-
-
-
 #drop all invalid'
 iptables -A INPUT -m state --state INVALID -j DROP
 iptables -A FORWARD -m state --state INVALID -j DROP
-
 ######################################################################################
-
 #*******cliar internet*************************************'
 #OUTPUT
 #OUT HTTP(S)
-iptables -A OUTPUT -o $wan0 -p tcp --sport 80 -m state --state NEW,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -o $wan0 -p tcp --sport 443 -m state --state NEW,ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -o $wan0 -p tcp --sport 80 -m state --state ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -o $wan0 -p tcp --sport 443 -m state --state ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -o $wan0 -p tcp --dport 443 -m state --state NEW,ESTABLISHED -j ACCEPT
 #OUT ICMP
 iptables -A OUTPUT -o $wan0 -p icmp --icmp-type echo-request -j ACCEPT
 #ssh
@@ -110,9 +167,11 @@ iptables -A OUTPUT -o $wan0 -p tcp --sport 22 -m state --state ESTABLISHED -j AC
 iptables -A OUTPUT -o $wan0 -p udp --sport 53 -j ACCEPT
 #NTP
 iptables -A OUTPUT -o $wan0 -p udp --sport 123 -j ACCEPT
+
 #INPUT'
 #HTTP(S) #SSH 
 iptables -A INPUT -i $wan0 -p tcp -m multiport --dports 22,80,443 -m state --state NEW,ESTABLISHED -j ACCEPT
+iptables -A INPUT -i $wan0 -p tcp --sport 443 -m state --state ESTABLISHED -j ACCEPT
 #DNS NTP
 iptables -A INPUT -i $wan0 -p udp -m multiport --dports 53,123 -j ACCEPT
 #ICMP
@@ -162,15 +221,19 @@ iptables -A FORWARD -i $wan0 -o $eth0 -j REJECT
 iptables -A FORWARD -i $wan0 -o $eth1 -j REJECT
 # only exist connections
 iptables -A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
-echo '#****************NAT****************************************'
 
+echo '#****************NAT****************************************'
 # sNAT
 iptables -t nat -A POSTROUTING -s 192.168.0.0/24 -o $wan0 -j MASQUERADE #SNAT --to-source 192.168.199.106 #DHCP!!
 iptables -t nat -A POSTROUTING -s 172.20.0.0/24 -o $wan0 -j MASQUERADE #SNAT --to-source 192.168.199.106 #DHCP!!
 
+read  -r -p "Save? " answer
+    case $answer in
+        y) iptables-save > new-iptables;;
+        n) echo "fuh" && exit;;
+    esac
+
 echo "Done"
-
-
 
 #sudo tcpdump -ni enp0s8
 #On client
