@@ -11,20 +11,6 @@
 #sudo iptables-save
 #ls /sys/class/net
 #enp0s10  enp0s3  enp0s8  enp0s9  lo
-#vagrant@bastion:~$ cat /etc/netplan/50-vagrant.yaml
-#---
-#network:
-#  version: 2
-#  renderer: networkd
-#  ethernets:
-#    enp0s8:
-#      addresses:
-#      - 172.20.0.1/24
-#    enp0s9:
-#      addresses:
-#      - 192.168.0.1/24
-#    enp0s10:
-#      dhcp4: true
 #prot="icmp, dns, http, https, ssh, ntp"
 
 #INTERF
@@ -194,25 +180,42 @@ openUDP="137,445" #-p udp -m multiport --dports 137,445
 #xarg?
 #HOST=172.20.0.100 is the BOSS
 
-iptables -A INPUT -i $eth0 -s $BOSS -j ACCEPT
-iptables -A INPUT -i $eth1 -s $BOSS -j ACCEPT
-iptables -A OUTPUT -o $eth0 -d $BOSS -j ACCEPT
-iptables -A OUTPUT -o $eth1 -d $BOSS -j ACCEPT
-#Others
-iptables -A INPUT -i $eth0 -p tcp -m multiport --dports $openTCP -j ACCEPT
-iptables -A INPUT -i $eth0 -p udp -m multiport --dports $openUDP -j ACCEPT
-iptables -A OUTPUT -o $eth0 -p tcp -m multiport --sport $openTCP -j ACCEPT
-iptables -A OUTPUT -o $eth0 -p udp -m multiport --sport $openUDP -j ACCEPT
-iptables -A INPUT -i $eth1 -p tcp -m multiport --dports $openTCP -j ACCEPT
-iptables -A INPUT -i $eth1 -p udp -m multiport --dports $openUDP -j ACCEPT
-iptables -A OUTPUT -o $eth1 -p tcp -m multiport --sport $openTCP -j ACCEPT
-iptables -A OUTPUT -o $eth1 -p udp -m multiport --sport $openUDP -j ACCEPT
+# iptables -A INPUT -i $eth0 -s $BOSS -j ACCEPT
+# iptables -A INPUT -i $eth1 -s $BOSS -j ACCEPT
+# iptables -A OUTPUT -o $eth0 -d $BOSS -j ACCEPT
+# iptables -A OUTPUT -o $eth1 -d $BOSS -j ACCEPT
+# #Others
+# iptables -A INPUT -i $eth0 -p tcp -m multiport --dports $openTCP -j ACCEPT
+# iptables -A INPUT -i $eth0 -p udp -m multiport --dports $openUDP -j ACCEPT
+# iptables -A OUTPUT -o $eth0 -p tcp -m multiport --sport $openTCP -j ACCEPT
+# iptables -A OUTPUT -o $eth0 -p udp -m multiport --sport $openUDP -j ACCEPT
+# iptables -A INPUT -i $eth1 -p tcp -m multiport --dports $openTCP -j ACCEPT
+# iptables -A INPUT -i $eth1 -p udp -m multiport --dports $openUDP -j ACCEPT
+# iptables -A OUTPUT -o $eth1 -p tcp -m multiport --sport $openTCP -j ACCEPT
+# iptables -A OUTPUT -o $eth1 -p udp -m multiport --sport $openUDP -j ACCEPT
+
+#*********FORWARD bitwin eth******************************'
+#BOSS
+iptables -A FORWARD -i $eth0 -o $eth1 -s $BOSS -j ACCEPT
+iptables -A FORWARD -i $eth0 -o $eth1 -d $BOSS -j ACCEPT
+iptables -A FORWARD -o $eth0 -i $eth1 -s $BOSS -j ACCEPT
+iptables -A FORWARD -o $eth0 -i $eth1 -d $BOSS -j ACCEPT
+
+#SAMBA 
+iptables -A FORWARD -i $eth0 -o $eth1 -p tcp -m multiport --dports $openTCP -j ACCEPT
+iptables -A FORWARD -i $eth0 -o $eth1 -p udp -m multiport --dports $openUDP -j ACCEPT
+
+iptables -A FORWARD -o $eth0 -i $eth1 -p tcp -m multiport --sport $openTCP -j ACCEPT
+iptables -A FORWARD -o $eth0 -i $eth1 -p udp -m multiport --sport $openUDP -j ACCEPT
+
+iptables -A FORWARD -i $eth1 -o $eth0 -p tcp -m multiport --dports $openTCP -j ACCEPT
+iptables -A FORWARD -i $eth1 -o $eth0 -p udp -m multiport --dports $openUDP -j ACCEPT
+
+iptables -A FORWARD -o $eth1 -i $eth0 -p tcp -m multiport --sport $openTCP -j ACCEPT
+iptables -A FORWARD -o $eth1 -i $eth0 -p udp -m multiport --sport $openUDP -j ACCEPT
 
 #*********FORWARD to the Internet******************************'
-
-#-m iprange --src-range 192.168.0.0/24 --dst-range 172.20.0.0/24
-
-# 192.168.0.1/24 > inet
+#192.168.0.1/24 > inet
 iptables -A FORWARD -i $eth1 -o $wan0 -m iprange --src-range $inet192 -j ACCEPT
 # 192.168.0.1/24 < inet
 iptables -A FORWARD -i $wan0 -o $eth1 -m iprange --dst-range $inet192 -j ACCEPT
