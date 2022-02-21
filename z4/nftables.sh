@@ -35,6 +35,8 @@ eth1=enp0s9
 #Lacky
 inet192="192.168.0.31-192.168.0.44"
 inet172="172.20.0.101-172.20.0.200"
+BOSS="172.20.0.100"
+
 
 if [ "$EUID" -ne 0 ]
   then echo "Please run as root"
@@ -134,7 +136,8 @@ read  -r -p "SAVE & Flush old tables?" answer
         y) iptables-save > old_tables && flush;;
     esac
 
-service lan srvLAN=enp0s3
+#service lan 
+srvLAN=enp0s3
 iptables -A INPUT -i $srvLAN -j ACCEPT
 iptables -A OUTPUT -o $srvLAN -j ACCEPT
 
@@ -190,10 +193,11 @@ openUDP="137,445" #-p udp -m multiport --dports 137,445
 # do 
 #xarg?
 #HOST=172.20.0.100 is the BOSS
-iptables -A INPUT -i $eth0 -s 172.20.0.100/36 -j ACCEPT
-iptables -A INPUT -i $eth1 -s 172.20.0.100/36 -j ACCEPT
-iptables -A OUTPUT -o $eth0 -d 172.20.0.100/36 -j ACCEPT
-iptables -A OUTPUT -o $eth1 -d 172.20.0.100/36 -j ACCEPT
+
+iptables -A INPUT -i $eth0 -s $BOSS -j ACCEPT
+iptables -A INPUT -i $eth1 -s $BOSS -j ACCEPT
+iptables -A OUTPUT -o $eth0 -d $BOSS -j ACCEPT
+iptables -A OUTPUT -o $eth1 -d $BOSS -j ACCEPT
 #Others
 iptables -A INPUT -i $eth0 -p tcp -m multiport --dports $openTCP -j ACCEPT
 iptables -A INPUT -i $eth0 -p udp -m multiport --dports $openUDP -j ACCEPT
@@ -204,7 +208,7 @@ iptables -A INPUT -i $eth1 -p udp -m multiport --dports $openUDP -j ACCEPT
 iptables -A OUTPUT -o $eth1 -p tcp -m multiport --sport $openTCP -j ACCEPT
 iptables -A OUTPUT -o $eth1 -p udp -m multiport --sport $openUDP -j ACCEPT
 
-echo '#*********FORWARD to the Internet******************************'
+#*********FORWARD to the Internet******************************'
 
 #-m iprange --src-range 192.168.0.0/24 --dst-range 172.20.0.0/24
 
@@ -222,7 +226,7 @@ iptables -A FORWARD -i $wan0 -o $eth1 -j REJECT
 # only exist connections
 iptables -A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
 
-echo '#****************NAT****************************************'
+#****************NAT****************************************'
 # sNAT
 iptables -t nat -A POSTROUTING -s 192.168.0.0/24 -o $wan0 -j MASQUERADE #SNAT --to-source 192.168.199.106 #DHCP!!
 iptables -t nat -A POSTROUTING -s 172.20.0.0/24 -o $wan0 -j MASQUERADE #SNAT --to-source 192.168.199.106 #DHCP!!
