@@ -54,3 +54,4 @@ May 13 15:31:00 [sshd] Connection closed by invalid user default 5.188.10.176 po
 May 13 15:31:40 [sshd] Did not receive identification string from 5.188.10.176 port 44919
 May 13 15:37:50 [sshd] Invalid user admin from 212.91.77.226 port 28681
 May 13 15:37:50 [sshd] Connection closed by invalid user admin 212.91.77.226 port 28681 [preauth]
+May 13 15:37:50 [sshd] Accepted password for root from 192.168.6.200 port 14543 ssh2
